@@ -1,0 +1,205 @@
+#include <iostream>
+#include <string>
+#include <iomanip>
+
+using namespace std;
+
+// Definição da estrutura para representar o aluno
+struct Aluno {
+    string nome;
+    int idade;
+    int matricula;
+    float notaFinal;
+};
+
+// Constante para a capacidade máxima de alunos
+const int MAX_ALUNOS = 100;
+
+// Função para exibir o menu principal
+void exibirMenu() {
+    cout << "\n========================================\n";
+    cout << "       SISTEMA DE CADASTRO DE ALUNOS       \n";
+    cout << "========================================\n";
+    cout << "1. Inserir novo aluno\n";
+    cout << "2. Listar todos os alunos\n";
+    cout << "3. Buscar aluno por matrícula\n";
+    cout << "4. Atualizar nota final por matrícula\n";
+    cout << "5. Sair\n";
+    cout << "========================================\n";
+    cout << "Escolha uma opcao: ";
+}
+
+// Funções auxiliares seguras para ler números sem corromper o buffer
+int lerInteiro(const string& mensagem) {
+    string entrada;
+    int valor;
+    while (true) {
+        cout << mensagem;
+        getline(cin, entrada);
+        try {
+            size_t pos;
+            valor = stoi(entrada, &pos);
+            if (pos == entrada.length()) {
+                return valor;
+            }
+        } catch (...) {}
+        cout << "[ERRO] Entrada inválida. Digite apenas números inteiros!\n";
+    }
+}
+
+float lerFloat(const string& mensagem) {
+    string entrada;
+    float valor;
+    while (true) {
+        cout << mensagem;
+        getline(cin, entrada);
+        try {
+            size_t pos;
+            valor = stof(entrada, &pos);
+            if (pos == entrada.length()) {
+                return valor;
+            }
+        } catch (...) {}
+        cout << "[ERRO] Entrada inválida. Digite um número válido (ex: 8.5)!\n";
+    }
+}
+
+// Função para inserir um novo aluno no vetor
+void inserirAluno(Aluno alunos[], int &totalAlunos) {
+    if (totalAlunos >= MAX_ALUNOS) {
+        cout << "\n[ERRO] O sistema atingiu a capacidade máxima de 100 alunos!\n";
+        return;
+    }
+
+    cout << "\n--- Cadastro de Novo Aluno ---\n";
+    
+    cout << "Nome completo: ";
+    getline(cin, alunos[totalAlunos].nome);
+
+    alunos[totalAlunos].idade = lerInteiro("Idade: ");
+    alunos[totalAlunos].matricula = lerInteiro("Matrícula (número inteiro): ");
+
+    // Verificar se a matrícula já existe
+    for (int i = 0; i < totalAlunos; i++) {
+        if (alunos[i].matricula == alunos[totalAlunos].matricula) {
+            cout << "\n[ERRO] Já existe um aluno cadastrado com esta matrícula!\n";
+            return;
+        }
+    }
+
+    alunos[totalAlunos].notaFinal = lerFloat("Nota final: ");
+
+    totalAlunos++;
+    cout << "\n[SUCESSO] Aluno cadastrado com sucesso!\n";
+}
+
+// Função para listar todos os alunos cadastrados
+void listarAlunos(const Aluno alunos[], int totalAlunos) {
+    if (totalAlunos == 0) {
+        cout << "\n[AVISO] Nenhum aluno cadastrado no sistema.\n";
+        return;
+    }
+
+    cout << "\n========================================\n";
+    cout << "          LISTA DE ALUNOS (" << totalAlunos << "/" << MAX_ALUNOS << ")        \n";
+    cout << "========================================\n";
+    
+    for (int i = 0; i < totalAlunos; i++) {
+        cout << "Registro #" << (i + 1) << "\n";
+        cout << "  Nome:      " << alunos[i].nome << "\n";
+        cout << "  Idade:     " << alunos[i].idade << " anos\n";
+        cout << "  Matrícula: " << alunos[i].matricula << "\n";
+        cout << "  Nota Final:" << fixed << setprecision(2) << alunos[i].notaFinal << "\n";
+        cout << "----------------------------------------\n";
+    }
+}
+
+// Função para buscar e exibir um aluno específico pela matrícula
+void buscarAluno(const Aluno alunos[], int totalAlunos) {
+    if (totalAlunos == 0) {
+        cout << "\n[AVISO] Nenhum aluno cadastrado para busca.\n";
+        return;
+    }
+
+    int matriculaBusca = lerInteiro("\nDigite o número da matrícula que deseja buscar: ");
+
+    bool encontrado = false;
+    for (int i = 0; i < totalAlunos; i++) {
+        if (alunos[i].matricula == matriculaBusca) {
+            cout << "\n[SUCESSO] Aluno encontrado!\n";
+            cout << "  Nome:      " << alunos[i].nome << "\n";
+            cout << "  Idade:     " << alunos[i].idade << " anos\n";
+            cout << "  Matrícula: " << alunos[i].matricula << "\n";
+            cout << "  Nota Final:" << fixed << setprecision(2) << alunos[i].notaFinal << "\n";
+            encontrado = true;
+            break;
+        }
+    }
+
+    if (!encontrado) {
+        cout << "\n[AVISO] Nenhum aluno encontrado com a matrícula " << matriculaBusca << ".\n";
+    }
+}
+
+// Função para atualizar a nota final de um aluno com base na matrícula
+void atualizarNota(Aluno alunos[], int totalAlunos) {
+    if (totalAlunos == 0) {
+        cout << "\n[AVISO] Nenhum aluno cadastrado para atualização.\n";
+        return;
+    }
+
+    int matriculaBusca = lerInteiro("\nDigite o número da matrícula do aluno que terá a nota atualizada: ");
+
+    bool encontrado = false;
+    for (int i = 0; i < totalAlunos; i++) {
+        if (alunos[i].matricula == matriculaBusca) {
+            cout << "Aluno encontrado: " << alunos[i].nome << "\n";
+            cout << "Nota atual: " << fixed << setprecision(2) << alunos[i].notaFinal << "\n";
+            
+            alunos[i].notaFinal = lerFloat("Digite a nova nota final: ");
+            
+            cout << "\n[SUCESSO] Nota final atualizada com sucesso!\n";
+            encontrado = true;
+            break;
+        }
+    }
+
+    if (!encontrado) {
+        cout << "\n[AVISO] Nenhum aluno encontrado com a matrícula " << matriculaBusca << ".\n";
+    }
+}
+
+int main() {
+    setlocale(LC_ALL, "Portuguese");
+
+    Aluno turma[MAX_ALUNOS]; 
+    int totalAlunos = 0;     
+    int opcao;
+
+    do {
+        exibirMenu();
+        opcao = lerInteiro(""); // Lê a opção do menu com total segurança
+
+        switch (opcao) {
+            case 1:
+                inserirAluno(turma, totalAlunos);
+                break;
+            case 2:
+                listarAlunos(turma, totalAlunos);
+                break;
+            case 3:
+                buscarAluno(turma, totalAlunos);
+                break;
+            case 4:
+                atualizarNota(turma, totalAlunos);
+                break;
+            case 5:
+                cout << "\nEncerrando o sistema. Até logo!\n";
+                break;
+            default:
+                cout << "\n[ERRO] Opção inválida! Escolha entre 1 e 5.\n";
+        }
+    } while (opcao != 5);
+
+    return 0;
+}
